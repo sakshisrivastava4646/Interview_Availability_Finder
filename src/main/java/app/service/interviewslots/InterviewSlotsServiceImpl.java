@@ -117,7 +117,7 @@ public class InterviewSlotsServiceImpl implements InterviewSlotsService {
     List<InterviewerAvailability> interviewerAvailability = interviewerAvailabilityRepository
             .getInterviewerAvailabilityByInterviewerId(String.valueOf(interviewerId));
 
-    if (interviewerAvailability == null) {
+    if (interviewerAvailability.isEmpty()) {
         throw new BusinessException(ExceptionConstants.INTERVIEWER_HAS_NO_AVAILABILITY_DEFINED, String.valueOf(interviewerId));
     }
 
@@ -168,7 +168,7 @@ public class InterviewSlotsServiceImpl implements InterviewSlotsService {
     }
   }
 
-  private OverlappingDateTimeSlot getOverlappingDateTimeSlot(LocalTime from, LocalTime to, CandidateAvailability candAvailability, LocalDate candidateAvailabilityDate,
+  public OverlappingDateTimeSlot getOverlappingDateTimeSlot(LocalTime from, LocalTime to, CandidateAvailability candAvailability, LocalDate candidateAvailabilityDate,
                                                              InterviewerAvailability interviewerAvailability) {
     OverlappingDateTimeSlot x;
 

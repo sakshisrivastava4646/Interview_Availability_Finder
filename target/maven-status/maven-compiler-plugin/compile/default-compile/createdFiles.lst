@@ -15,6 +15,7 @@ app\controller\utils\ExceptionHandlerController.class
 app\service\interviewslots\InterviewSlotsServiceImpl.class
 app\model\interviewer\entity\InterviewerAvailability$InterviewerAvailabilityBuilder.class
 app\model\candidate\entity\CandidateAvailability.class
+app\model\candidate\entity\Candidate$CandidateBuilder.class
 app\model\candidate\model\CandidateModel$CandidateModelBuilder.class
 app\model\candidate\model\CandidateAvailabilityReturnModel.class
 app\constant\ExceptionConstants.class

@@ -8,6 +8,7 @@ import app.model.candidate.model.CandidateModel;
 import app.service.candidate.CandidateService;
 import java.util.List;
 import javax.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(WebUrlConstants.CANDIDATE_AVAILABILITY_FINDER)
+@Slf4j
 public class CandidateController {
     @Autowired
     private CandidateService candidateService;
@@ -28,13 +30,15 @@ public class CandidateController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CandidateModel createCandidate(@Valid @RequestBody CandidateModel candidateModel) {
-        return candidateService.createCandidate(AvailabilityFinderUtil.convertCandidateModelToEntity(candidateModel));
+        return candidateService.createCandidate(
+            AvailabilityFinderUtil.convertCandidateModelToEntity(candidateModel));
     }
 
     @PostMapping(WebUrlConstants.AVAILABILITY)
     @ResponseStatus(HttpStatus.CREATED)
     public CandidateAvailabilityModel createCandidateAvailability(
         @Valid @RequestBody CandidateAvailabilityModel candidateAvailabilityModel) {
+        log.info("******in candavailability********");
       return candidateService.createCandidateAvailability(
           AvailabilityFinderUtil.convertCandidateAvailabilityModelToEntity(candidateAvailabilityModel));
 

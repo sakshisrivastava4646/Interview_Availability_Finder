@@ -34,7 +34,7 @@ public class InterviewerController {
 
   @PostMapping(WebUrlConstants.AVAILABILITY)
   @ResponseStatus(HttpStatus.CREATED)
-  public InterviewerAvailabilityModel createCandidateAvailability(
+  public InterviewerAvailabilityModel createInterviewerAvailability(
       @Valid @RequestBody InterviewerAvailabilityModel interviewerAvailabilityModel) {
     return interviewerService.createInterviewerAvailability(AvailabilityFinderUtil.convertInterviewerAvailabilityModelToEntity(interviewerAvailabilityModel));
   }
@@ -53,13 +53,13 @@ public class InterviewerController {
 
   @GetMapping(WebUrlConstants.AVAILABILITY_BY_ID)
   @ResponseStatus(HttpStatus.OK)
-  public InterviewerAvailabilityReturnModel getCandidateAvailabilityById(@PathVariable String id) {
+  public InterviewerAvailabilityReturnModel getInterviewerAvailabilityById(@PathVariable String id) {
     return interviewerService.getInterviewerAvailabilityById(id);
   }
 
   @DeleteMapping(WebUrlConstants.ID)
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteCandidateById(@PathVariable String id) {
+  public void deleteInterviewerById(@PathVariable String id) {
     interviewerService.deleteInterviewerById(id);
   }
 
