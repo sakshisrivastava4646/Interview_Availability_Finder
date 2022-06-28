@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CandidateServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Interview_Availability_Finder</a> &gt; <a href="index.source.html" class="el_package">app.service.candidate</a> &gt; <span class="el_source">CandidateServiceImpl.java</span></div><h1>CandidateServiceImpl.java</h1><pre class="source lang-java linenums">package app.service.candidate;
+
+import app.constant.ApplicationConstants;
+import app.constant.ExceptionConstants;
+import app.helper.AvailabilityFinderUtil;
+import app.exception.BusinessException;
+import app.model.candidate.entity.CandidateAvailability;
+import app.model.candidate.model.CandidateAvailabilityModel;
+import app.model.candidate.model.CandidateAvailabilityReturnModel;
+import app.model.candidate.entity.Candidate;
+import app.model.candidate.model.CandidateModel;
+import app.model.utils.DateTimeSlot;
+import app.repository.DateTimeRepository;
+import app.repository.candidate.CandidateAvailabilityRepository;
+import app.repository.candidate.CandidateRepository;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import javax.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+<span class="fc" id="L27">@Slf4j</span>
+//@RequiredArgsConstructor
+@Transactional
+<span class="fc" id="L30">public class CandidateServiceImpl implements CandidateService {</span>
+  @Autowired
+    CandidateRepository candidateRepository;
+
+    @Autowired
+    CandidateAvailabilityRepository candidateAvailabilityRepository;
+
+    @Autowired
+    DateTimeRepository dateTimeRepository;
+
+    //******** START CREATING CANDIDATE **************
+    @Override
+    public CandidateModel createCandidate(Candidate candidate) {
+<span class="fc" id="L43">        verifyValidityOfCandidate(candidate);</span>
+<span class="fc" id="L44">        Candidate cand = candidateRepository.save(candidate);</span>
+<span class="fc" id="L45">        return AvailabilityFinderUtil.convertCandidateEntityToModel(cand);</span>
+    }
+
+    private void verifyValidityOfCandidate(Candidate candidateModel) {
+<span class="fc" id="L49">      verifyNameIsFilled(candidateModel);</span>
+<span class="fc" id="L50">      verifyUniqueEmail(candidateModel);</span>
+<span class="fc" id="L51">      verifyUniqueName(candidateModel);</span>
+<span class="fc" id="L52">    }</span>
+
+  private void verifyUniqueEmail(Candidate candidateModel) {
+<span class="fc" id="L55">    String emailOfCandidateToBeCreated = candidateModel.getEmail();</span>
+<span class="fc" id="L56">    List&lt;String&gt; existingEmails = candidateRepository.getEmailTocheckExisitng(emailOfCandidateToBeCreated);</span>
+
+<span class="fc bfc" id="L58" title="All 2 branches covered.">    if (!existingEmails.isEmpty()) {</span>
+<span class="fc" id="L59">      throw new BusinessException(ExceptionConstants.EMAIL_ALREADY_EXISTS, candidateModel.getEmail());</span>
+    }
+<span class="fc" id="L61">  }</span>
+
+    private void verifyNameIsFilled(Candidate candidateModel) {
+<span class="fc" id="L64">      String nameOfCandidateToBeCreated = candidateModel.getName();</span>
+
+<span class="pc bpc" id="L66" title="1 of 4 branches missed.">      if (nameOfCandidateToBeCreated == null || nameOfCandidateToBeCreated.isBlank()) {</span>
+<span class="fc" id="L67">        throw new BusinessException(ExceptionConstants.NAME_REQUIRED,</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">            candidateModel.getName() != null ? candidateModel.getName() : null);</span>
+      }
+<span class="fc" id="L70">    }</span>
+
+    private void verifyUniqueName(Candidate candidateModel) {
+<span class="fc" id="L73">      String nameOfCandidateToBeCreated = candidateModel.getName();</span>
+<span class="fc" id="L74">      List&lt;String&gt; existingNames = candidateRepository.getAllNames();</span>
+
+<span class="fc bfc" id="L76" title="All 2 branches covered.">      if (existingNames.contains(nameOfCandidateToBeCreated)) {</span>
+<span class="fc" id="L77">          throw new BusinessException(ExceptionConstants.NAME_ALREADY_EXISTS, candidateModel.getName());</span>
+      }
+<span class="fc" id="L79">    }</span>
+
+  //******** END CREATING CANDIDATE **************
+
+  //************* START ADD CANDIDATE AVAILABILITY ***********
+  @Override
+  public CandidateAvailabilityModel createCandidateAvailability(CandidateAvailability candidateAvailability) {
+<span class="fc" id="L86">      AtomicBoolean existingFlag = new AtomicBoolean(false);</span>
+      CandidateAvailability candidateAvailabilityAfterSave;
+
+<span class="fc" id="L89">      verifyValidityOfCandidateAvailability(candidateAvailability);</span>
+
+<span class="fc" id="L91">    List&lt;CandidateAvailability&gt; candidateExistingAvailability = verifyIfCandidateHasAvailabilityCreated(</span>
+        candidateAvailability);
+
+<span class="fc bfc" id="L94" title="All 2 branches covered.">    if(candidateExistingAvailability.isEmpty()) {</span>
+<span class="fc" id="L95">      candidateAvailabilityAfterSave = candidateAvailabilityRepository.save(candidateAvailability);</span>
+    }
+    else{
+<span class="fc" id="L98">      candidateExistingAvailability.forEach(existingAvailability -&gt;</span>
+<span class="fc" id="L99">        setExisitngFlagForCandidateAvailability(candidateAvailability, existingFlag, existingAvailability)</span>
+      );
+
+<span class="fc bfc" id="L102" title="All 2 branches covered.">      if(existingFlag.toString().equals(ApplicationConstants.FALSE)) {</span>
+<span class="fc" id="L103">        candidateAvailabilityAfterSave = candidateAvailabilityRepository.save(candidateAvailability);</span>
+      }
+      else{
+<span class="fc" id="L106">        throw new BusinessException(ExceptionConstants.AVAILABILITY_ALREADY_EXISTS, String.valueOf(candidateAvailability));</span>
+      }
+<span class="fc" id="L108">    }return AvailabilityFinderUtil.convertCandidateAvailabilityEntityToModel(candidateAvailabilityAfterSave);</span>
+  }
+
+  private void setExisitngFlagForCandidateAvailability(CandidateAvailability candidateAvailabilityModel, AtomicBoolean existingFlag, CandidateAvailability existingAvailability) {
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">    if(existingAvailability.getAvailabilitySlotList().getDay().equals(candidateAvailabilityModel.getAvailabilitySlotList().getDay()) &amp;&amp;</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">    existingAvailability.getAvailabilitySlotList().getFrom().equals(candidateAvailabilityModel.getAvailabilitySlotList().getFrom())&amp;&amp;</span>
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">    existingAvailability.getAvailabilitySlotList().getTo().equals(candidateAvailabilityModel.getAvailabilitySlotList().getTo())){</span>
+<span class="fc" id="L115">      existingFlag.set(true);</span>
+    }else{
+<span class="fc" id="L117">      existingFlag.set(false);</span>
+    }
+<span class="fc" id="L119">  }</span>
+
+  private void verifyValidityOfCandidateAvailability(CandidateAvailability candidateAvailabilityModel) {
+<span class="fc" id="L122">    verifyCandidateExists(candidateAvailabilityModel);</span>
+<span class="fc" id="L123">    verifyPeriodOfAvailabilityIsValid(candidateAvailabilityModel);</span>
+<span class="fc" id="L124">  }</span>
+
+  private List&lt;CandidateAvailability&gt; verifyIfCandidateHasAvailabilityCreated(
+      CandidateAvailability candidateAvailabilityModel) {
+<span class="fc" id="L128">    String candidateId = String.valueOf(candidateAvailabilityModel.getCandidateModel().getId());</span>
+
+<span class="fc" id="L130">    return candidateAvailabilityRepository.candidateAvailabilityByCandidateId(candidateId);</span>
+  }
+
+
+  private void verifyCandidateExists(CandidateAvailability candidateAvailabilityModel) {
+<span class="fc" id="L135">    Optional&lt;Candidate&gt; candidateModel = candidateRepository.findById(</span>
+<span class="fc" id="L136">        candidateAvailabilityModel.getCandidateModel().getId());</span>
+
+<span class="fc bfc" id="L138" title="All 2 branches covered.">    if (candidateModel.isEmpty()) {</span>
+<span class="fc" id="L139">      throw new BusinessException(ExceptionConstants.CANDIDATE_DOES_NOT_EXIST,</span>
+<span class="fc" id="L140">          candidateAvailabilityModel.getCandidateModel().getName());</span>
+    }
+<span class="fc" id="L142">  }</span>
+
+  private void verifyPeriodOfAvailabilityIsValid(CandidateAvailability candidateAvailabilityModel) {
+<span class="fc" id="L145">      DateTimeSlot availabilitySlot = candidateAvailabilityModel.getAvailabilitySlotList();</span>
+<span class="fc" id="L146">      LocalTime newTimeSlotFromTime = availabilitySlot.getFrom();</span>
+<span class="fc" id="L147">      LocalTime newTimeSlotToTime = availabilitySlot.getTo();</span>
+
+<span class="pc bpc" id="L149" title="1 of 4 branches missed.">      if (newTimeSlotFromTime.isAfter(newTimeSlotToTime) || newTimeSlotFromTime.equals(newTimeSlotToTime)) {</span>
+<span class="fc" id="L150">          throw new BusinessException(ExceptionConstants.INVALID_FROM_TO_TIME,</span>
+              ApplicationConstants.FROM + newTimeSlotFromTime,
+              ApplicationConstants.TO + newTimeSlotToTime);
+      }
+
+<span class="pc bpc" id="L155" title="1 of 4 branches missed.">      if (newTimeSlotFromTime.getMinute() != 0 || newTimeSlotToTime.getMinute() != 0) {</span>
+<span class="fc" id="L156">          throw new BusinessException(</span>
+                  ExceptionConstants.INVALID_TIME,
+              ApplicationConstants.FROM + newTimeSlotFromTime, ApplicationConstants.TO + newTimeSlotToTime);
+      }
+<span class="fc" id="L160">  }</span>
+
+  //************* END ADD CANDIDATE AVAILABILITY ***********
+
+  @Override
+  public List&lt;CandidateModel&gt; getAllCandidates() {
+<span class="fc" id="L166">      List&lt;Candidate&gt; candidateList = candidateRepository.findAll();</span>
+<span class="fc" id="L167">    return AvailabilityFinderUtil.convertCandidateEntityToModelList(candidateList);</span>
+  }
+  @Override
+  public CandidateModel getCandidateById(String id) {
+<span class="fc" id="L171">      Optional&lt;Candidate&gt; candidate = candidateRepository.findById(Integer.valueOf(id));</span>
+<span class="pc bpc" id="L172" title="1 of 2 branches missed.">      return AvailabilityFinderUtil.convertCandidateEntityToModel(candidate.isPresent() ? candidate.get() : new Candidate());</span>
+  }
+
+  @Override
+  public CandidateAvailabilityReturnModel getCandidateAvailabilityById(String id) {
+<span class="fc" id="L177">    List&lt;CandidateAvailability&gt; candidateAvailabilityModelList = candidateAvailabilityRepository.candidateAvailabilityByCandidateId(id);</span>
+<span class="fc" id="L178">    List&lt;DateTimeSlot&gt; dateTimeSlotList=candidateAvailabilityModelList.stream()</span>
+<span class="fc" id="L179">        .map(CandidateAvailability::getAvailabilitySlotList)</span>
+<span class="fc" id="L180">        .collect(Collectors.toList());</span>
+<span class="fc" id="L181">    return CandidateAvailabilityReturnModel.builder().availabilitySlotList(dateTimeSlotList)</span>
+<span class="fc" id="L182">        .candidateModel(candidateAvailabilityModelList.get(0).getCandidateModel())</span>
+<span class="fc" id="L183">        .id(candidateAvailabilityModelList.get(0).getId()).build();</span>
+  }
+
+  @Override
+  public void deleteCandidateById(String id) {
+<span class="fc" id="L188">      List&lt;CandidateAvailability&gt; candidateAvailabilityModelList = candidateAvailabilityRepository.candidateAvailabilityByCandidateId(id);</span>
+<span class="fc" id="L189">    candidateAvailabilityRepository.deleteCandidateAvailability(id);</span>
+<span class="fc" id="L190">      candidateAvailabilityModelList.forEach(e-&gt;{</span>
+<span class="fc" id="L191">        int dateTimeId=e.getAvailabilitySlotList().getId();</span>
+<span class="fc" id="L192">        dateTimeRepository.deleteAvailability(String.valueOf(dateTimeId));</span>
+<span class="fc" id="L193">      });</span>
+
+<span class="fc" id="L195">    candidateRepository.deleteById(Integer.valueOf(id));</span>
+<span class="fc" id="L196">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

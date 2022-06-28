@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+/**
+ * The type Interview slots query model.
+ */
 @Getter
 @Setter
 @RequiredArgsConstructor

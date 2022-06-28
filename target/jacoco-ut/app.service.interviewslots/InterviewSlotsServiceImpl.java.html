@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InterviewSlotsServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Interview_Availability_Finder</a> &gt; <a href="index.source.html" class="el_package">app.service.interviewslots</a> &gt; <span class="el_source">InterviewSlotsServiceImpl.java</span></div><h1>InterviewSlotsServiceImpl.java</h1><pre class="source lang-java linenums">package app.service.interviewslots;
+
+import app.constant.ExceptionConstants;
+import app.exception.BusinessException;
+import app.model.candidate.entity.CandidateAvailability;
+import app.model.candidate.entity.Candidate;
+import app.model.interviewer.entity.InterviewerAvailability;
+import app.model.interviewer.entity.Interviewer;
+import app.model.interviewslots.model.InterviewSlotsQueryModel;
+import app.model.interviewslots.model.InterviewSlotsReturnModel;
+import app.model.utils.OverlappingDateTimeSlot;
+import app.repository.candidate.CandidateAvailabilityRepository;
+import app.repository.candidate.CandidateRepository;
+import app.repository.interviewer.InterviewerAvailabilityRepository;
+import app.repository.interviewer.InterviewerRepository;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import javax.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+@Transactional
+<span class="fc" id="L30">public class InterviewSlotsServiceImpl implements InterviewSlotsService {</span>
+  @Autowired
+    CandidateRepository candidateRepository;
+
+  @Autowired
+    CandidateAvailabilityRepository candidateAvailabilityRepository;
+
+  @Autowired
+    InterviewerRepository interviewerRepository;
+
+  @Autowired
+    InterviewerAvailabilityRepository interviewerAvailabilityRepository;
+
+  @Override
+  public InterviewSlotsReturnModel getInterviewSlots(InterviewSlotsQueryModel interviewSlotsQueryModel) {
+<span class="fc" id="L45">    verifyCandidateAndInterviewersExist(interviewSlotsQueryModel);</span>
+
+<span class="fc" id="L47">    int candidateId = interviewSlotsQueryModel.getCandidateId();</span>
+<span class="fc" id="L48">    List&lt;Integer&gt; interviewersIds = interviewSlotsQueryModel.getInterviewersIds();</span>
+<span class="fc" id="L49">    List&lt;OverlappingDateTimeSlot&gt; interviewAvailabilitySlots = getInterviewAvailabilitySlots(interviewSlotsQueryModel);</span>
+
+<span class="fc" id="L51">    return</span>
+<span class="fc" id="L52">        InterviewSlotsReturnModel.builder().candidateId(candidateId).interviewersIds(interviewersIds)</span>
+<span class="fc" id="L53">                .interviewAvailabilitySlotList(interviewAvailabilitySlots).build();</span>
+
+  }
+
+  private void verifyCandidateAndInterviewersExist(InterviewSlotsQueryModel interviewSlotsQueryModel) {
+<span class="fc" id="L58">    int candidateId = interviewSlotsQueryModel.getCandidateId();</span>
+<span class="fc" id="L59">    List&lt;Integer&gt; interviewersIds = interviewSlotsQueryModel.getInterviewersIds();</span>
+
+<span class="fc" id="L61">    verifyCandidateExists(candidateId);</span>
+<span class="fc" id="L62">    verifyInterviewersExist(interviewersIds);</span>
+<span class="fc" id="L63">  }</span>
+
+  private void verifyCandidateExists(int candidateId) {
+<span class="fc" id="L66">    Optional&lt;Candidate&gt; existingCandidate = candidateRepository.findById(candidateId);</span>
+
+<span class="fc bfc" id="L68" title="All 2 branches covered.">    if (existingCandidate.isEmpty()) {</span>
+<span class="fc" id="L69">      throw new BusinessException(ExceptionConstants.CANDIDATE_DOES_NOT_EXIST, String.valueOf(candidateId));</span>
+    }
+<span class="fc" id="L71">  }</span>
+
+  private void verifyInterviewersExist(List&lt;Integer&gt; interviewersIds) {
+<span class="fc bfc" id="L74" title="All 2 branches covered.">    for (int interviewer : interviewersIds) {</span>
+<span class="fc" id="L75">      Optional&lt;Interviewer&gt; existingInterviewer = interviewerRepository.findById(interviewer);</span>
+
+<span class="fc bfc" id="L77" title="All 2 branches covered.">      if (existingInterviewer.isEmpty()) {</span>
+<span class="fc" id="L78">        throw new BusinessException(ExceptionConstants.INTERVIEWER_DOES_NOT_EXIST, String.valueOf(interviewer));</span>
+      }
+<span class="fc" id="L80">    }</span>
+<span class="fc" id="L81">  }</span>
+
+  private List&lt;OverlappingDateTimeSlot&gt; getInterviewAvailabilitySlots(InterviewSlotsQueryModel interviewSlotsQueryModel) {
+<span class="fc" id="L84">    int candidateId = interviewSlotsQueryModel.getCandidateId();</span>
+<span class="fc" id="L85">    List&lt;CandidateAvailability&gt; candidateAvailability = getCandidateAvailability(candidateId);</span>
+
+<span class="fc" id="L87">    List&lt;Integer&gt; interviewersIds = interviewSlotsQueryModel.getInterviewersIds();</span>
+
+<span class="fc" id="L89">    Map&lt;Integer, List&lt;InterviewerAvailability&gt;&gt; interviewersAvailabilitiesMap = new HashMap&lt;&gt;();</span>
+
+<span class="fc bfc" id="L91" title="All 2 branches covered.">    for (int interviewer : interviewersIds) {</span>
+<span class="fc" id="L92">      List&lt;InterviewerAvailability&gt; interviewerAvailability = getInterviewerAvailability(interviewer);</span>
+
+<span class="fc" id="L94">      interviewersAvailabilitiesMap.put(interviewer, interviewerAvailability);</span>
+<span class="fc" id="L95">    }</span>
+
+<span class="fc" id="L97">    return</span>
+<span class="fc" id="L98">        getCandidateAndInterviewersAvailabilitiesCommonDays(</span>
+            candidateAvailability,
+            interviewersAvailabilitiesMap);
+
+  }
+
+
+  private List&lt;CandidateAvailability&gt; getCandidateAvailability(int candidateId) {
+<span class="fc" id="L106">    List&lt;CandidateAvailability&gt; candidateAvailability =</span>
+<span class="fc" id="L107">            candidateAvailabilityRepository.candidateAvailabilityByCandidateId(String.valueOf(candidateId));</span>
+
+<span class="fc bfc" id="L109" title="All 2 branches covered.">    if (candidateAvailability.isEmpty()) {</span>
+<span class="fc" id="L110">        throw new BusinessException(ExceptionConstants.CANDIDATE_HAS_NO_AVAILABILITY_DEFINED, String.valueOf(candidateId));</span>
+    }
+
+<span class="fc" id="L113">    return candidateAvailability;</span>
+  }
+
+  private List&lt;InterviewerAvailability&gt; getInterviewerAvailability(int interviewerId) {
+<span class="fc" id="L117">    List&lt;InterviewerAvailability&gt; interviewerAvailability = interviewerAvailabilityRepository</span>
+<span class="fc" id="L118">            .getInterviewerAvailabilityByInterviewerId(String.valueOf(interviewerId));</span>
+
+<span class="fc bfc" id="L120" title="All 2 branches covered.">    if (interviewerAvailability.isEmpty()) {</span>
+<span class="fc" id="L121">        throw new BusinessException(ExceptionConstants.INTERVIEWER_HAS_NO_AVAILABILITY_DEFINED, String.valueOf(interviewerId));</span>
+    }
+
+<span class="fc" id="L124">    return interviewerAvailability;</span>
+  }
+
+  private List&lt;OverlappingDateTimeSlot&gt; getCandidateAndInterviewersAvailabilitiesCommonDays(
+      List&lt;CandidateAvailability&gt; candidateAvailability,
+      Map&lt;Integer, List&lt;InterviewerAvailability&gt;&gt; interviewersAvailabilitiesMap) {
+
+<span class="fc" id="L131">    List&lt;OverlappingDateTimeSlot&gt; overlappingDateTimeSlot = new ArrayList&lt;&gt;();</span>
+
+    int i;
+    LocalTime from;
+    LocalTime to;
+
+<span class="fc bfc" id="L137" title="All 2 branches covered.">    for(CandidateAvailability candAvailability: candidateAvailability){</span>
+<span class="fc" id="L138">      LocalDate candidateAvailabilityDate = candAvailability.getAvailabilitySlotList().getDay();</span>
+<span class="fc" id="L139">      i=0;</span>
+<span class="fc" id="L140">      from =null;</span>
+<span class="fc" id="L141">      to=null;</span>
+<span class="fc" id="L142">      calculateInterviewerAvailability(interviewersAvailabilitiesMap, overlappingDateTimeSlot, i, from, to, candAvailability, candidateAvailabilityDate);</span>
+<span class="fc" id="L143">    }</span>
+<span class="fc" id="L144">    return overlappingDateTimeSlot;</span>
+  }
+  private void calculateInterviewerAvailability(Map&lt;Integer, List&lt;InterviewerAvailability&gt;&gt; interviewersAvailabilitiesMap, List&lt;OverlappingDateTimeSlot&gt; overlappingDateTimeSlot, int i, LocalTime from, LocalTime to,
+                                                CandidateAvailability candAvailability, LocalDate candidateAvailabilityDate) {
+    OverlappingDateTimeSlot x;
+<span class="fc bfc" id="L149" title="All 2 branches covered.">    for (Entry&lt;Integer, List&lt;InterviewerAvailability&gt;&gt; entry: interviewersAvailabilitiesMap.entrySet()) {</span>
+<span class="fc" id="L150">      List&lt;InterviewerAvailability&gt; interviewerAvailabilityList = entry.getValue();</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">      for (InterviewerAvailability interviewerAvailability : interviewerAvailabilityList) {</span>
+<span class="fc" id="L152">        LocalDate interviewerAvailabilityDate = interviewerAvailability.getAvailabilitySlotList().getDay();</span>
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">        if (candidateAvailabilityDate.compareTo(interviewerAvailabilityDate) == 0) {</span>
+<span class="fc" id="L154">          x = getOverlappingDateTimeSlot(from, to, candAvailability, candidateAvailabilityDate, interviewerAvailability);</span>
+<span class="pc bpc" id="L155" title="2 of 4 branches missed.">          if (x.getFrom() != null &amp;&amp; x.getTo() != null) {</span>
+<span class="fc" id="L156">            i = i + 1;</span>
+<span class="fc" id="L157">            from = x.getFrom();</span>
+<span class="fc" id="L158">            to = x.getTo();</span>
+          }
+<span class="fc" id="L160">          addingCandInterviewerAvailability(interviewersAvailabilitiesMap, overlappingDateTimeSlot, i, x);</span>
+        }
+<span class="fc" id="L162">      }</span>
+<span class="fc" id="L163">    }</span>
+<span class="fc" id="L164">  }</span>
+  private void addingCandInterviewerAvailability(Map&lt;Integer, List&lt;InterviewerAvailability&gt;&gt; interviewersAvailabilitiesMap, List&lt;OverlappingDateTimeSlot&gt; overlappingDateTimeSlot, int i, OverlappingDateTimeSlot x) {
+<span class="pc bpc" id="L166" title="3 of 6 branches missed.">    if(i == interviewersAvailabilitiesMap.size() &amp;&amp; x.getFrom() != null &amp;&amp; x.getTo() !=null){</span>
+<span class="fc" id="L167">      overlappingDateTimeSlot.add(x);</span>
+    }
+<span class="fc" id="L169">  }</span>
+
+  public OverlappingDateTimeSlot getOverlappingDateTimeSlot(LocalTime from, LocalTime to, CandidateAvailability candAvailability, LocalDate candidateAvailabilityDate,
+                                                             InterviewerAvailability interviewerAvailability) {
+    OverlappingDateTimeSlot x;
+
+<span class="pc bpc" id="L175" title="1 of 4 branches missed.">    if (from != null &amp;&amp; to != null) {</span>
+<span class="fc" id="L176">      x = getOverlappingTimeSlot(from, to,</span>
+<span class="fc" id="L177">          interviewerAvailability.getAvailabilitySlotList().getFrom(),</span>
+<span class="fc" id="L178">          interviewerAvailability.getAvailabilitySlotList().getTo(),</span>
+          candidateAvailabilityDate);
+    } else {
+
+<span class="fc" id="L182">      x = getOverlappingTimeSlot(candAvailability.getAvailabilitySlotList().getFrom(),</span>
+<span class="fc" id="L183">          candAvailability.getAvailabilitySlotList().getTo(),</span>
+<span class="fc" id="L184">          interviewerAvailability.getAvailabilitySlotList().getFrom(),</span>
+<span class="fc" id="L185">          interviewerAvailability.getAvailabilitySlotList().getTo(),</span>
+          candidateAvailabilityDate);
+    }
+
+<span class="fc" id="L189">    return x;</span>
+  }
+
+  private OverlappingDateTimeSlot getOverlappingTimeSlot(LocalTime candidateFrom, LocalTime candidateTo, LocalTime interviewerFrom,
+                                                         LocalTime interviewerTo, LocalDate overlappingDate) {
+<span class="fc" id="L194">    OverlappingDateTimeSlot overlappingDateTimeSlot = new OverlappingDateTimeSlot();</span>
+    LocalTime overlapTimeSlotFrom;
+    LocalTime overlapTimeSlotTo;
+
+<span class="pc bpc" id="L198" title="2 of 4 branches missed.">    if (candidateFrom.isBefore(interviewerTo) &amp;&amp; interviewerFrom.isBefore(candidateTo)) {</span>
+<span class="fc bfc" id="L199" title="All 2 branches covered.">      if (candidateFrom.isBefore(interviewerFrom)) {</span>
+<span class="fc" id="L200">        overlapTimeSlotFrom = interviewerFrom;</span>
+      } else {
+<span class="fc" id="L202">        overlapTimeSlotFrom = candidateFrom;</span>
+      }
+
+<span class="fc bfc" id="L205" title="All 2 branches covered.">      if (candidateTo.isBefore(interviewerTo)) {</span>
+<span class="fc" id="L206">        overlapTimeSlotTo = candidateTo;</span>
+      } else {
+<span class="fc" id="L208">        overlapTimeSlotTo = interviewerTo;</span>
+      }
+
+<span class="fc" id="L211">      overlappingDateTimeSlot = OverlappingDateTimeSlot.builder().from(overlapTimeSlotFrom).to(overlapTimeSlotTo)</span>
+<span class="fc" id="L212">          .day(overlappingDate).build();</span>
+
+    }
+
+<span class="fc" id="L216">    return overlappingDateTimeSlot;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

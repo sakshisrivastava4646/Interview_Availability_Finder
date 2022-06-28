@@ -2,6 +2,9 @@ package app.error;
 
 import app.exception.BusinessException;
 
+/**
+ * The type Business error.
+ */
 public class BusinessError extends RestError {
     private String messageKey;
     private String[] arguments;
@@ -9,20 +12,37 @@ public class BusinessError extends RestError {
     private BusinessError() {
     }
 
-    public BusinessError(String messageKey) {
+  /**
+   * Instantiates a new Business error.
+   * @param messageKey the message key
+   */
+  public BusinessError(String messageKey) {
         this.messageKey = messageKey;
     }
 
-    public BusinessError(String messageKey, String... arguments) {
+  /**
+   * Instantiates a new Business error.
+   * @param messageKey the message key
+   * @param arguments  the arguments
+   */
+  public BusinessError(String messageKey, String... arguments) {
         this.messageKey = messageKey;
         this.arguments = arguments;
     }
 
-    public String getMessageKey() {
+  /**
+   * Gets message key.
+   * @return the message key
+   */
+  public String getMessageKey() {
         return messageKey;
     }
 
-    public String[] getArguments() {
+  /**
+   * Get arguments string [ ].
+   * @return the string [ ]
+   */
+  public String[] getArguments() {
         return arguments;
     }
 

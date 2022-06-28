@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * The type Candidate controller.
+ */
 @RestController
 @RequestMapping(WebUrlConstants.CANDIDATE_AVAILABILITY_FINDER)
 @Slf4j
@@ -27,6 +30,11 @@ public class CandidateController {
     @Autowired
     private CandidateService candidateService;
 
+    /**
+     * Create candidate candidate model.
+     * @param candidateModel the candidate model
+     * @return the candidate model
+     */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CandidateModel createCandidate(@Valid @RequestBody CandidateModel candidateModel) {
@@ -34,6 +42,11 @@ public class CandidateController {
             AvailabilityFinderUtil.convertCandidateModelToEntity(candidateModel));
     }
 
+    /**
+     * Create candidate availability candidate availability model.
+     * @param candidateAvailabilityModel the candidate availability model
+     * @return the candidate availability model
+     */
     @PostMapping(WebUrlConstants.AVAILABILITY)
     @ResponseStatus(HttpStatus.CREATED)
     public CandidateAvailabilityModel createCandidateAvailability(
@@ -44,25 +57,42 @@ public class CandidateController {
 
     }
 
+    /**
+     * Gets all candidates.
+     * @return the all candidates
+     */
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<CandidateModel> getAllCandidates() {
         return candidateService.getAllCandidates();
     }
 
+    /**
+     * Gets candidate by id.
+     * @param id the id
+     * @return the candidate by id
+     */
     @GetMapping(WebUrlConstants.ID)
     @ResponseStatus(HttpStatus.OK)
     public CandidateModel getCandidateById(@PathVariable String id) {
         return candidateService.getCandidateById(id);
     }
 
+    /**
+     * Gets candidate availability by id.
+     * @param id the id
+     * @return the candidate availability by id
+     */
     @GetMapping(WebUrlConstants.AVAILABILITY_BY_ID)
     @ResponseStatus(HttpStatus.OK)
     public CandidateAvailabilityReturnModel getCandidateAvailabilityById(@PathVariable String id) {
         return candidateService.getCandidateAvailabilityById(id);
     }
 
-
+    /**
+     * Delete candidate by id.
+     * @param id the id
+     */
     @DeleteMapping(WebUrlConstants.ID)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCandidateById(@PathVariable String id) {

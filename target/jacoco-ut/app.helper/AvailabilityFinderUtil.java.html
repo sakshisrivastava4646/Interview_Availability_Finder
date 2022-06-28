@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AvailabilityFinderUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Interview_Availability_Finder</a> &gt; <a href="index.source.html" class="el_package">app.helper</a> &gt; <span class="el_source">AvailabilityFinderUtil.java</span></div><h1>AvailabilityFinderUtil.java</h1><pre class="source lang-java linenums">package app.helper;
+
+import app.model.candidate.entity.Candidate;
+import app.model.candidate.entity.CandidateAvailability;
+import app.model.candidate.model.CandidateAvailabilityModel;
+import app.model.candidate.model.CandidateModel;
+import app.model.interviewer.entity.Interviewer;
+import app.model.interviewer.entity.InterviewerAvailability;
+import app.model.interviewer.model.InterviewerAvailabilityModel;
+import app.model.interviewer.model.InterviewerModel;
+import app.model.utils.DateTimeSlot;
+import app.model.utils.model.DateTimeSlotModel;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+
+
+/**
+ * The type Invoice util.
+ */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+<span class="fc" id="L26">@Slf4j</span>
+public class AvailabilityFinderUtil {
+
+  public static Candidate convertCandidateModelToEntity(CandidateModel candidateModel){
+<span class="nc" id="L30">    Candidate candidate = new Candidate();</span>
+<span class="nc" id="L31">    BeanUtils.copyProperties(candidateModel, candidate);</span>
+<span class="nc" id="L32">    return candidate;</span>
+  }
+
+  public static CandidateModel convertCandidateEntityToModel(Candidate candidate){
+<span class="fc" id="L36">    CandidateModel candidateModel = new CandidateModel();</span>
+<span class="fc" id="L37">    BeanUtils.copyProperties(candidate, candidateModel );</span>
+<span class="fc" id="L38">    return candidateModel;</span>
+  }
+
+  public static List&lt;CandidateModel&gt; convertCandidateEntityToModelList(List&lt;Candidate&gt; candidateList){
+    List&lt;CandidateModel&gt; candidateModelList ;
+<span class="fc" id="L43">    candidateModelList = candidateList.stream().map(</span>
+        AvailabilityFinderUtil::convertCandidateEntityToModel
+<span class="fc" id="L45">    ).collect(Collectors.toList());</span>
+<span class="fc" id="L46">    return candidateModelList;</span>
+  }
+
+  public static CandidateAvailability convertCandidateAvailabilityModelToEntity(CandidateAvailabilityModel candidateAvailabilityModel){
+<span class="nc" id="L50">    CandidateAvailability candidateAvailability = new CandidateAvailability();</span>
+<span class="nc" id="L51">    BeanUtils.copyProperties(candidateAvailabilityModel, candidateAvailability);</span>
+
+<span class="nc" id="L53">    Candidate candidate = new Candidate();</span>
+<span class="nc" id="L54">    BeanUtils.copyProperties( candidateAvailabilityModel.getCandidateModel(), candidate);</span>
+<span class="nc" id="L55">    DateTimeSlot dateTimeSlot = new DateTimeSlot();</span>
+<span class="nc" id="L56">    BeanUtils.copyProperties(candidateAvailabilityModel.getAvailabilitySlotList(), dateTimeSlot);</span>
+
+<span class="nc" id="L58">    return CandidateAvailability.builder().candidateModel(candidate)</span>
+<span class="nc" id="L59">        .availabilitySlotList(dateTimeSlot).id(candidateAvailabilityModel.getId()).build();</span>
+
+  }
+
+  public static CandidateAvailabilityModel convertCandidateAvailabilityEntityToModel(CandidateAvailability candidateAvailability){
+<span class="fc" id="L64">    CandidateAvailabilityModel candidateAvailabilityModel = new CandidateAvailabilityModel();</span>
+<span class="fc" id="L65">    BeanUtils.copyProperties(candidateAvailability, candidateAvailabilityModel );</span>
+
+<span class="fc" id="L67">    CandidateModel candidateModel = new CandidateModel();</span>
+<span class="fc" id="L68">    BeanUtils.copyProperties(candidateAvailability.getCandidateModel(), candidateModel);</span>
+<span class="fc" id="L69">    DateTimeSlotModel dateTimeSlotModel = new DateTimeSlotModel();</span>
+<span class="fc" id="L70">    BeanUtils.copyProperties(candidateAvailability.getAvailabilitySlotList(), dateTimeSlotModel);</span>
+
+<span class="fc" id="L72">    return CandidateAvailabilityModel.builder().candidateModel(candidateModel)</span>
+<span class="fc" id="L73">        .availabilitySlotList(dateTimeSlotModel).id(candidateAvailability.getId()).build();</span>
+
+  }
+
+  // Interviewer object conversion starts
+
+  public static Interviewer convertInterviewerModelToEntity(InterviewerModel interviewerModel){
+<span class="nc" id="L80">    Interviewer interviewer = new Interviewer();</span>
+<span class="nc" id="L81">    BeanUtils.copyProperties(interviewerModel, interviewer);</span>
+<span class="nc" id="L82">    return interviewer;</span>
+  }
+
+  public static InterviewerModel convertInterviewerEntityToModel(Interviewer interviewer){
+<span class="fc" id="L86">    InterviewerModel interviewerModel = new InterviewerModel();</span>
+<span class="fc" id="L87">    BeanUtils.copyProperties(interviewer, interviewerModel );</span>
+<span class="fc" id="L88">    return interviewerModel;</span>
+  }
+
+  public static List&lt;InterviewerModel&gt; convertInterviewerEntityToModelList(List&lt;Interviewer&gt; interviewerList){
+    List&lt;InterviewerModel&gt; interviewerModelList ;
+<span class="fc" id="L93">    interviewerModelList = interviewerList.stream().map(</span>
+        AvailabilityFinderUtil::convertInterviewerEntityToModel
+<span class="fc" id="L95">    ).collect(Collectors.toList());</span>
+<span class="fc" id="L96">    return interviewerModelList;</span>
+  }
+
+  public static InterviewerAvailability convertInterviewerAvailabilityModelToEntity(InterviewerAvailabilityModel interviewerAvailabilityModel){
+<span class="nc" id="L100">    InterviewerAvailability interviewerAvailability = new InterviewerAvailability();</span>
+<span class="nc" id="L101">    BeanUtils.copyProperties(interviewerAvailabilityModel, interviewerAvailability);</span>
+
+<span class="nc" id="L103">    Interviewer interviewer = new Interviewer();</span>
+<span class="nc" id="L104">    BeanUtils.copyProperties( interviewerAvailabilityModel.getInterviewerModel(), interviewer);</span>
+<span class="nc" id="L105">    DateTimeSlot dateTimeSlot = new DateTimeSlot();</span>
+<span class="nc" id="L106">    BeanUtils.copyProperties(interviewerAvailabilityModel.getAvailabilitySlotList(), dateTimeSlot);</span>
+
+<span class="nc" id="L108">    return InterviewerAvailability.builder().interviewerModel(interviewer)</span>
+<span class="nc" id="L109">        .availabilitySlotList(dateTimeSlot).id(interviewerAvailabilityModel.getId()).build();</span>
+
+  }
+
+  public static InterviewerAvailabilityModel convertInterviewerAvailabilityEntityToModel(InterviewerAvailability interviewerAvailability){
+<span class="fc" id="L114">    InterviewerAvailabilityModel interviewerAvailabilityModel = new InterviewerAvailabilityModel();</span>
+<span class="fc" id="L115">    BeanUtils.copyProperties(interviewerAvailability, interviewerAvailabilityModel );</span>
+
+<span class="fc" id="L117">    InterviewerModel interviewerModel = new InterviewerModel();</span>
+<span class="fc" id="L118">    BeanUtils.copyProperties(interviewerAvailability.getInterviewerModel(), interviewerModel);</span>
+<span class="fc" id="L119">    DateTimeSlotModel dateTimeSlotModel = new DateTimeSlotModel();</span>
+<span class="fc" id="L120">    BeanUtils.copyProperties(interviewerAvailability.getAvailabilitySlotList(), dateTimeSlotModel);</span>
+
+<span class="fc" id="L122">    return InterviewerAvailabilityModel.builder().interviewerModel(interviewerModel)</span>
+<span class="fc" id="L123">        .availabilitySlotList(dateTimeSlotModel).id(interviewerAvailability.getId()).build();</span>
+
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

@@ -9,6 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * The type Candidate availability model.
+ */
 @Getter
 @Setter
 @Builder

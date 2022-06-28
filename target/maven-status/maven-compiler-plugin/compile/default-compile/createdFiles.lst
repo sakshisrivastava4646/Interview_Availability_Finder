@@ -9,6 +9,7 @@ app\service\candidate\CandidateService.class
 app\model\interviewer\model\InterviewerModel.class
 app\model\interviewslots\model\InterviewSlotsReturnModel.class
 app\controller\InterviewSlotsController.class
+app\model\interviewslots\model\InterviewSlotsQueryModel$InterviewSlotsQueryModelBuilder.class
 app\model\interviewer\entity\InterviewerAvailability.class
 app\model\utils\model\DateTimeSlotModel$DateTimeSlotModelBuilder.class
 app\controller\utils\ExceptionHandlerController.class
@@ -26,6 +27,7 @@ app\controller\InterviewerController.class
 app\model\interviewer\model\InterviewerAvailabilityModel$InterviewerAvailabilityModelBuilder.class
 app\repository\interviewer\InterviewerAvailabilityRepository.class
 app\model\interviewer\model\InterviewerAvailabilityReturnModel.class
+app\model\interviewer\entity\Interviewer$InterviewerBuilder.class
 app\model\utils\OverlappingDateTimeSlot.class
 app\model\interviewer\model\InterviewerAvailabilityModel.class
 app\constant\WebUrlConstants.class

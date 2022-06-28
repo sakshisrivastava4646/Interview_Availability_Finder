@@ -25,18 +25,33 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * The type Interview slots service.
+ */
 @Service
 @Transactional
 public class InterviewSlotsServiceImpl implements InterviewSlotsService {
+  /**
+   * The Candidate repository.
+   */
   @Autowired
     CandidateRepository candidateRepository;
 
+  /**
+   * The Candidate availability repository.
+   */
   @Autowired
     CandidateAvailabilityRepository candidateAvailabilityRepository;
 
+  /**
+   * The Interviewer repository.
+   */
   @Autowired
     InterviewerRepository interviewerRepository;
 
+  /**
+   * The Interviewer availability repository.
+   */
   @Autowired
     InterviewerAvailabilityRepository interviewerAvailabilityRepository;
 
@@ -130,9 +145,9 @@ public class InterviewSlotsServiceImpl implements InterviewSlotsService {
 
     List<OverlappingDateTimeSlot> overlappingDateTimeSlot = new ArrayList<>();
 
-    int i=0;
-    LocalTime from = null;
-    LocalTime to = null;
+    int i;
+    LocalTime from;
+    LocalTime to;
 
     for(CandidateAvailability candAvailability: candidateAvailability){
       LocalDate candidateAvailabilityDate = candAvailability.getAvailabilitySlotList().getDay();
@@ -168,6 +183,15 @@ public class InterviewSlotsServiceImpl implements InterviewSlotsService {
     }
   }
 
+  /**
+   * Gets overlapping date time slot.
+   * @param from                      the from
+   * @param to                        the to
+   * @param candAvailability          the cand availability
+   * @param candidateAvailabilityDate the candidate availability date
+   * @param interviewerAvailability   the interviewer availability
+   * @return the overlapping date time slot
+   */
   public OverlappingDateTimeSlot getOverlappingDateTimeSlot(LocalTime from, LocalTime to, CandidateAvailability candAvailability, LocalDate candidateAvailabilityDate,
                                                              InterviewerAvailability interviewerAvailability) {
     OverlappingDateTimeSlot x;

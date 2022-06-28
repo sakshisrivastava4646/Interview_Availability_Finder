@@ -1,7 +1,14 @@
 package app.exception;
 
+/**
+ * The type Technical exception.
+ */
 public class TechnicalException extends RuntimeException {
-    public TechnicalException(String message) {
+  /**
+   * Instantiates a new Technical exception.
+   * @param message the message
+   */
+  public TechnicalException(String message) {
         super(message);
     }
 }

@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * The type Interview slots return model.
+ */
 @Getter
 @Setter
 @Builder

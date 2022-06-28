@@ -23,18 +23,30 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * The type Candidate service.
+ */
 @Service
 @Slf4j
 //@RequiredArgsConstructor
 @Transactional
 public class CandidateServiceImpl implements CandidateService {
+  /**
+   * The Candidate repository.
+   */
   @Autowired
     CandidateRepository candidateRepository;
 
-    @Autowired
+  /**
+   * The Candidate availability repository.
+   */
+  @Autowired
     CandidateAvailabilityRepository candidateAvailabilityRepository;
 
-    @Autowired
+  /**
+   * The Date time repository.
+   */
+  @Autowired
     DateTimeRepository dateTimeRepository;
 
     //******** START CREATING CANDIDATE **************

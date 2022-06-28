@@ -22,6 +22,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+/**
+ * The type Date time slot.
+ */
 @Getter
 @Setter
 @Builder

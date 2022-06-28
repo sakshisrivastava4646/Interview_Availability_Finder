@@ -10,8 +10,18 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+/**
+ * The type Exception handler controller.
+ */
 @ControllerAdvice
 public class ExceptionHandlerController {
+    /**
+     * Handle business rule validation error rest error.
+     * @param request   the request
+     * @param response  the response
+     * @param exception the exception
+     * @return the rest error
+     */
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public RestError handleBusinessRuleValidationError(

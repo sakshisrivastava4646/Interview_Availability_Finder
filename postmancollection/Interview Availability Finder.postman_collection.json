@@ -1,0 +1,355 @@
+{
+	"info": {
+		"_postman_id": "fde1c63a-7eb2-4862-9690-15bb8f4f7583",
+		"name": "Interview Availability Finder",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Candidates",
+			"item": [
+				{
+					"name": "Add Candidate",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Doe\",\n    \"email\" : \"john@gmail.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9090/availabilityFinder/api/candidates",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"availabilityFinder",
+								"api",
+								"candidates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Candidates",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9090/availabilityFinder/api/candidates",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"availabilityFinder",
+								"api",
+								"candidates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get a Candidate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9090/availabilityFinder/api/candidates/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"availabilityFinder",
+								"api",
+								"candidates",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete A Candidate Details By Id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9090/availabilityFinder/api/candidates/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"availabilityFinder",
+								"api",
+								"candidates",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Candidate's Availability",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"candidateName\": {\n        \"id\": 1,\n        \"name\": \"John Doe\",\n        \"email\": \"john@gmail.com\"\n    },\n    \"availabilitySlotList\": \n        {\n            \"day\": \"2022-06-26\",\n            \"from\": \"03:00\",\n            \"to\": \"06:00\"\n        }\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9090/availabilityFinder/api/candidates/availability",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"availabilityFinder",
+								"api",
+								"candidates",
+								"availability"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get candidate's availability",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9090/availabilityFinder/api/candidates/availability/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"availabilityFinder",
+								"api",
+								"candidates",
+								"availability",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Interviewers",
+			"item": [
+				{
+					"name": "Add Interviewer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"B\",\n    \"email\" : \"b@gmail.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9090/availabilityFinder/api/interviewers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"availabilityFinder",
+								"api",
+								"interviewers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Interviewers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9090/availabilityFinder/api/interviewers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"availabilityFinder",
+								"api",
+								"interviewers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get an interviewer",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9090/availabilityFinder/api/interviewers/11",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"availabilityFinder",
+								"api",
+								"interviewers",
+								"11"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete an interviewer",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9090/availabilityFinder/api/interviewers/6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"availabilityFinder",
+								"api",
+								"interviewers",
+								"6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add an interviewer's availability",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"interviewerName\": {\n        \"id\": 11,\n    \"email\": \"b@gmail.com\",\n    \"name\": \"B\"\n    },\n    \"availabilitySlotList\": {\n        \"day\": \"2022-06-26\",\n        \"from\": \"11:00\",\n        \"to\": \"12:00\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9090/availabilityFinder/api/interviewers/availability",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"availabilityFinder",
+								"api",
+								"interviewers",
+								"availability"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Interviewer availability",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9090/availabilityFinder/api/interviewers/availability/6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"availabilityFinder",
+								"api",
+								"interviewers",
+								"availability",
+								"6"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "InterviewSlots",
+			"item": [
+				{
+					"name": "Get available slots",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"candidateId\": \"1\",\n    \"interviewersIds\": \n        [\n            \"6\",\n            \"11\"\n            \n        ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9090/availabilityFinder/api/interview-slots",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"availabilityFinder",
+								"api",
+								"interview-slots"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

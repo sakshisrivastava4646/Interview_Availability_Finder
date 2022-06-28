@@ -23,18 +23,30 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * The type Interviewer service.
+ */
 @Service
 @Slf4j
 //@RequiredArgsConstructor
 @Transactional
 public class InterviewerServiceImpl implements InterviewerService {
 
+  /**
+   * The Interviewer repository.
+   */
   @Autowired
   InterviewerRepository interviewerRepository;
 
+  /**
+   * The Interviewer availability repository.
+   */
   @Autowired
   InterviewerAvailabilityRepository interviewerAvailabilityRepository;
 
+  /**
+   * The Date time repository.
+   */
   @Autowired
   DateTimeRepository dateTimeRepository;
 

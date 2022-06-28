@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * The type Interviewer model.
+ */
 @Getter
 @Setter
 @Builder

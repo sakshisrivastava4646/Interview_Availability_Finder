@@ -1,0 +1,9 @@
+app\constant\interviewslots\TestObjects.class
+app\constant\candidate\TestObjects.class
+app\service\candidate\CandidateServiceImplTests.class
+app\controller\candidate\CandidateControllerTest.class
+app\controller\interviewer\InterviewerControllerTest.class
+app\service\interviewslots\InterviewerSlotsServiceImplTests.class
+app\controller\interviewslots\InterviewerSlotsControllerTest.class
+app\service\interviewer\InterviewerServiceImplTests.class
+app\constant\interviewer\TestObjects.class

@@ -13,6 +13,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+/**
+ * The type Candidate.
+ */
 @Entity
 @Table(name = ApplicationConstants.CANDIDATE)
 @Getter

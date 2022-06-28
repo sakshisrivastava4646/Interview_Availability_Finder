@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InterviewerServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Interview_Availability_Finder</a> &gt; <a href="index.source.html" class="el_package">app.service.interviewer</a> &gt; <span class="el_source">InterviewerServiceImpl.java</span></div><h1>InterviewerServiceImpl.java</h1><pre class="source lang-java linenums">package app.service.interviewer;
+
+import app.constant.ApplicationConstants;
+import app.constant.ExceptionConstants;
+import app.exception.BusinessException;
+import app.helper.AvailabilityFinderUtil;
+import app.model.interviewer.entity.InterviewerAvailability;
+import app.model.interviewer.model.InterviewerAvailabilityModel;
+import app.model.interviewer.model.InterviewerAvailabilityReturnModel;
+import app.model.interviewer.entity.Interviewer;
+import app.model.interviewer.model.InterviewerModel;
+import app.model.utils.DateTimeSlot;
+import app.repository.DateTimeRepository;
+import app.repository.interviewer.InterviewerAvailabilityRepository;
+import app.repository.interviewer.InterviewerRepository;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import javax.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+<span class="fc" id="L27">@Slf4j</span>
+//@RequiredArgsConstructor
+@Transactional
+<span class="fc" id="L30">public class InterviewerServiceImpl implements InterviewerService {</span>
+
+  @Autowired
+  InterviewerRepository interviewerRepository;
+
+  @Autowired
+  InterviewerAvailabilityRepository interviewerAvailabilityRepository;
+
+  @Autowired
+  DateTimeRepository dateTimeRepository;
+
+  //************** START CREATING Interviewer **************
+  @Override
+  public InterviewerModel createInterviewer(Interviewer interviewerModel) {
+<span class="fc" id="L44">    verifyValidityOfInterviewer(interviewerModel);</span>
+<span class="fc" id="L45">    Interviewer interviewer = interviewerRepository.save(interviewerModel);</span>
+<span class="fc" id="L46">    return AvailabilityFinderUtil.convertInterviewerEntityToModel(interviewer);</span>
+  }
+
+  private void verifyValidityOfInterviewer(Interviewer interviewerModel) {
+<span class="fc" id="L50">    verifyNameIsFilled(interviewerModel);</span>
+<span class="fc" id="L51">    verifyUniqueEmail(interviewerModel);</span>
+<span class="fc" id="L52">    verifyUniqueName(interviewerModel);</span>
+<span class="fc" id="L53">  }</span>
+
+  private void verifyUniqueEmail(Interviewer interviewerModel) {
+<span class="fc" id="L56">    String emailOfInterviewerToBeCreated = interviewerModel.getEmail();</span>
+<span class="fc" id="L57">    List&lt;String&gt; existingEmails = interviewerRepository.getEmailTocheckExisitng(emailOfInterviewerToBeCreated);</span>
+
+<span class="fc bfc" id="L59" title="All 2 branches covered.">    if (!existingEmails.isEmpty()) {</span>
+<span class="fc" id="L60">      throw new BusinessException(ExceptionConstants.EMAIL_ALREADY_EXISTS, interviewerModel.getEmail());</span>
+    }
+<span class="fc" id="L62">  }</span>
+
+  private void verifyNameIsFilled(Interviewer interviewerModel) {
+<span class="fc" id="L65">    String nameOfInterviewerToBeCreated = interviewerModel.getName();</span>
+
+<span class="pc bpc" id="L67" title="1 of 4 branches missed.">    if (nameOfInterviewerToBeCreated == null || nameOfInterviewerToBeCreated.isBlank()) {</span>
+<span class="fc" id="L68">      throw new BusinessException(ExceptionConstants.NAME_REQUIRED,</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">          interviewerModel.getName() != null ? interviewerModel.getName() : null);</span>
+    }
+<span class="fc" id="L71">  }</span>
+
+  private void verifyUniqueName(Interviewer interviewerModel) {
+<span class="fc" id="L74">    String nameOfInterviewerToBeCreated = interviewerModel.getName();</span>
+<span class="fc" id="L75">    List&lt;String&gt; existingNames = interviewerRepository.getAllNames();</span>
+
+<span class="fc bfc" id="L77" title="All 2 branches covered.">    if (existingNames.contains(nameOfInterviewerToBeCreated)) {</span>
+<span class="fc" id="L78">      throw new BusinessException(ExceptionConstants.NAME_ALREADY_EXISTS, interviewerModel.getName());</span>
+    }
+<span class="fc" id="L80">  }</span>
+
+  //************* END CREATING Interviewer **************
+
+  //************* START ADD Interviewer AVAILABILITY ***********
+  @Override
+  public InterviewerAvailabilityModel createInterviewerAvailability(InterviewerAvailability interviewerAvailabilityModel) {
+    InterviewerAvailability interviewerAvailability;
+<span class="fc" id="L88">    AtomicBoolean existingFlag = new AtomicBoolean(false);</span>
+
+<span class="fc" id="L90">    verifyValidityOfInterviewerAvailability(interviewerAvailabilityModel);</span>
+
+<span class="fc" id="L92">    List&lt;InterviewerAvailability&gt; interviewerExistingAvailability = verifyIfInterviewerHasAvailabilityCreated(</span>
+        interviewerAvailabilityModel);
+
+<span class="fc bfc" id="L95" title="All 2 branches covered.">    if(interviewerExistingAvailability.isEmpty()) {</span>
+<span class="fc" id="L96">      interviewerAvailability = interviewerAvailabilityRepository.save(interviewerAvailabilityModel);</span>
+    }
+    else{
+<span class="fc" id="L99">      interviewerExistingAvailability.forEach(existingAvailability -&gt;</span>
+<span class="fc" id="L100">        setExistingFlagForInterviewerAvailability(interviewerAvailabilityModel, existingFlag, existingAvailability)</span>
+      );
+
+<span class="fc bfc" id="L103" title="All 2 branches covered.">      if(existingFlag.toString().equals(ApplicationConstants.FALSE)) {</span>
+<span class="fc" id="L104">        interviewerAvailability = interviewerAvailabilityRepository.save(interviewerAvailabilityModel);</span>
+      }
+      else{
+<span class="fc" id="L107">        throw new BusinessException(ExceptionConstants.AVAILABILITY_ALREADY_EXISTS, String.valueOf(interviewerAvailabilityModel));</span>
+      }
+<span class="fc" id="L109">    }return AvailabilityFinderUtil.convertInterviewerAvailabilityEntityToModel(interviewerAvailability);</span>
+  }
+
+  private void setExistingFlagForInterviewerAvailability(InterviewerAvailability interviewerAvailabilityModel, AtomicBoolean existingFlag, InterviewerAvailability existingAvailability) {
+<span class="fc bfc" id="L113" title="All 2 branches covered.">    if(checkExistingAvailability(interviewerAvailabilityModel, existingAvailability)){</span>
+<span class="fc" id="L114">      existingFlag.set(true);</span>
+    }else{
+<span class="fc" id="L116">      existingFlag.set(false);</span>
+    }
+<span class="fc" id="L118">  }</span>
+  private boolean checkExistingAvailability(InterviewerAvailability interviewerAvailabilityModel, InterviewerAvailability existingAvailability) {
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">    return existingAvailability.getAvailabilitySlotList().getDay().equals(interviewerAvailabilityModel.getAvailabilitySlotList().getDay()) &amp;&amp;</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        existingAvailability.getAvailabilitySlotList().getFrom().equals(interviewerAvailabilityModel.getAvailabilitySlotList().getFrom()) &amp;&amp;</span>
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">        existingAvailability.getAvailabilitySlotList().getTo().equals(interviewerAvailabilityModel.getAvailabilitySlotList().getTo());</span>
+  }
+
+  private void verifyValidityOfInterviewerAvailability(InterviewerAvailability interviewerAvailabilityModel) {
+<span class="fc" id="L126">    verifyInterviewerExists(interviewerAvailabilityModel);</span>
+<span class="fc" id="L127">    verifyPeriodOfAvailabilityIsValid(interviewerAvailabilityModel);</span>
+<span class="fc" id="L128">  }</span>
+
+  private List&lt;InterviewerAvailability&gt; verifyIfInterviewerHasAvailabilityCreated(
+      InterviewerAvailability interviewerAvailabilityModel) {
+<span class="fc" id="L132">    String interviewerId = String.valueOf(interviewerAvailabilityModel.getInterviewerModel().getId());</span>
+
+<span class="fc" id="L134">    return interviewerAvailabilityRepository.getInterviewerAvailabilityByInterviewerId(interviewerId);</span>
+  }
+
+
+  private void verifyInterviewerExists(InterviewerAvailability interviewerAvailabilityModel) {
+<span class="fc" id="L139">    Optional&lt;Interviewer&gt; interviewerModel = interviewerRepository.findById(</span>
+<span class="fc" id="L140">        interviewerAvailabilityModel.getInterviewerModel().getId());</span>
+
+<span class="fc bfc" id="L142" title="All 2 branches covered.">    if (interviewerModel.isEmpty()) {</span>
+<span class="fc" id="L143">      throw new BusinessException(ExceptionConstants.INTERVIEWER_DOES_NOT_EXIST,</span>
+<span class="fc" id="L144">          interviewerAvailabilityModel.getInterviewerModel().getName());</span>
+    }
+<span class="fc" id="L146">  }</span>
+
+  private void verifyPeriodOfAvailabilityIsValid(InterviewerAvailability interviewerAvailabilityModel) {
+<span class="fc" id="L149">    DateTimeSlot availabilitySlot = interviewerAvailabilityModel.getAvailabilitySlotList();</span>
+<span class="fc" id="L150">    LocalTime newTimeSlotFromTime = availabilitySlot.getFrom();</span>
+<span class="fc" id="L151">    LocalTime newTimeSlotToTime = availabilitySlot.getTo();</span>
+
+<span class="pc bpc" id="L153" title="1 of 4 branches missed.">    if (newTimeSlotFromTime.isAfter(newTimeSlotToTime) || newTimeSlotFromTime.equals(newTimeSlotToTime)) {</span>
+<span class="fc" id="L154">      throw new BusinessException(ExceptionConstants.INVALID_FROM_TO_TIME,</span>
+          ApplicationConstants.FROM + newTimeSlotFromTime,
+          ApplicationConstants.TO + newTimeSlotToTime);
+    }
+
+<span class="pc bpc" id="L159" title="1 of 4 branches missed.">    if (newTimeSlotFromTime.getMinute() != 0 || newTimeSlotToTime.getMinute() != 0) {</span>
+<span class="fc" id="L160">      throw new BusinessException(</span>
+          ExceptionConstants.INVALID_TIME,
+          ApplicationConstants.FROM + newTimeSlotFromTime, ApplicationConstants.TO + newTimeSlotToTime);
+    }
+<span class="fc" id="L164">  }</span>
+
+  //************* END ADD Interviewer AVAILABILITY ***********
+
+  @Override
+  public List&lt;InterviewerModel&gt; getAllInterviewers() {
+<span class="fc" id="L170">    List&lt;Interviewer&gt; interviewerList = interviewerRepository.findAll();</span>
+<span class="fc" id="L171">    return AvailabilityFinderUtil.convertInterviewerEntityToModelList(interviewerList);</span>
+  }
+  
+  @Override
+  public InterviewerModel getInterviewerById(String id) {
+<span class="fc" id="L176">    Optional&lt;Interviewer&gt; interviewer = interviewerRepository.findById(Integer.valueOf(id));</span>
+<span class="pc bpc" id="L177" title="1 of 2 branches missed.">    return AvailabilityFinderUtil.convertInterviewerEntityToModel(interviewer.isPresent() ? interviewer.get() : new Interviewer());</span>
+  }
+  
+  @Override
+  public InterviewerAvailabilityReturnModel getInterviewerAvailabilityById(String id) {
+<span class="fc" id="L182">    List&lt;InterviewerAvailability&gt; interviewerAvailabilityModelList = interviewerAvailabilityRepository.getInterviewerAvailabilityByInterviewerId(id);</span>
+<span class="fc" id="L183">    List&lt;DateTimeSlot&gt; dateTimeSlotList=interviewerAvailabilityModelList.stream().map(</span>
+        InterviewerAvailability::getAvailabilitySlotList
+<span class="fc" id="L185">    ).collect(Collectors.toList());</span>
+
+<span class="fc" id="L187">    return InterviewerAvailabilityReturnModel</span>
+<span class="fc" id="L188">        .builder().availabilitySlotList(dateTimeSlotList)</span>
+<span class="fc" id="L189">        .interviewerModel(interviewerAvailabilityModelList.get(0).getInterviewerModel())</span>
+<span class="fc" id="L190">        .id(interviewerAvailabilityModelList.get(0).getId()).build();</span>
+
+  }
+
+  @Override
+  public void deleteInterviewerById(String id) {
+<span class="fc" id="L196">    List&lt;InterviewerAvailability&gt; interviewerAvailabilityModelList = interviewerAvailabilityRepository.getInterviewerAvailabilityByInterviewerId(id);</span>
+<span class="fc" id="L197">    interviewerAvailabilityRepository.deleteInterviewerAvailability(id);</span>
+<span class="fc" id="L198">    interviewerAvailabilityModelList.forEach(e-&gt;{</span>
+<span class="fc" id="L199">      int dateTimeId=e.getAvailabilitySlotList().getId();</span>
+<span class="fc" id="L200">      dateTimeRepository.deleteAvailability(String.valueOf(dateTimeId));</span>
+<span class="fc" id="L201">    });</span>
+
+<span class="fc" id="L203">    interviewerRepository.deleteById(Integer.valueOf(id));</span>
+<span class="fc" id="L204">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

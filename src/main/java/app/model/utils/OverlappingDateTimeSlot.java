@@ -9,6 +9,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+/**
+ * The type Overlapping date time slot.
+ */
 @Getter
 @Setter
 @Builder

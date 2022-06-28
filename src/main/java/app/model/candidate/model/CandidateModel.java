@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 
 import lombok.Setter;
 
-
+/**
+ * The type Candidate model.
+ */
 @Getter
 @Setter
 @Builder

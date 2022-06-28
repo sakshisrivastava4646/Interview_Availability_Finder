@@ -13,13 +13,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * The type Interview slots controller.
+ */
 @RestController
 @RequestMapping(WebUrlConstants.AVAILABILITY_FINDER_INTERVIEW_SLOTS)
 public class InterviewSlotsController {
     @Autowired
     private InterviewSlotsService interviewSlotsService;
 
-    @GetMapping
+  /**
+   * Gets interview slots.
+   * @param interviewSlotsQueryModel the interview slots query model
+   * @return the interview slots
+   */
+  @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public InterviewSlotsReturnModel getInterviewSlots(
             @Valid @RequestBody InterviewSlotsQueryModel interviewSlotsQueryModel) {

@@ -7,12 +7,24 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+/**
+ * The interface Candidate availability repository.
+ */
 @Repository
 public interface CandidateAvailabilityRepository extends JpaRepository<CandidateAvailability, Long> {
-    @Query(value="select * from candidate_availability ca where ca.candidate_id = :candidateId",   nativeQuery = true)
+  /**
+   * Candidate availability by candidate id list.
+   * @param candidateId the candidate id
+   * @return the list
+   */
+  @Query(value="select * from candidate_availability ca where ca.candidate_id = :candidateId",   nativeQuery = true)
     List<CandidateAvailability> candidateAvailabilityByCandidateId(String candidateId);
 
-    @Modifying
+  /**
+   * Delete candidate availability.
+   * @param candidateId the candidate id
+   */
+  @Modifying
     @Query(value = "delete from candidate_availability ca where ca.candidate_id = :candidateId", nativeQuery = true)
     void deleteCandidateAvailability(String candidateId);
 

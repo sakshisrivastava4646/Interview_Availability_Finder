@@ -19,6 +19,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+/**
+ * The type Interviewer availability.
+ */
 @Getter
 @Setter
 @RequiredArgsConstructor

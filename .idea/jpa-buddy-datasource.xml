@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JpbDataSourceConfig">
+    <data-sources>
+      <data-source id="a4e7b985-1121-482c-8ccc-1763f353425e" name="Interview_Availability_Finder" url="jdbc:h2:file:~/h2/Interview_Availability_Finder" driverClass="org.h2.Driver" />
+    </data-sources>
+  </component>
+</project>

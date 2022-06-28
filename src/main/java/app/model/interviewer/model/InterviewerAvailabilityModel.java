@@ -11,6 +11,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * The type Interviewer availability model.
+ */
 @Getter
 @Setter
 @Builder
